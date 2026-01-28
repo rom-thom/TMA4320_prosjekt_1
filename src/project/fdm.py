@@ -64,7 +64,7 @@ def _build_matrix(cfg: Config, dx: float, dy: float, dt: float) -> np.ndarray:
     bottom = J == 0
     top = J == cfg.ny - 1
 
-    # Diagonal entries
+    # Diagonal entries 
     diag = np.full((cfg.nx, cfg.ny), 1 + 2 * rx + 2 * ry)
     diag[left | right] -= rx
     diag[bottom | top] -= ry
