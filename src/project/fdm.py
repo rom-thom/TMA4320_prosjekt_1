@@ -36,6 +36,8 @@ def solve_heat_equation(
     # Placeholder initialization — replace this with your implementation
     T = np.zeros((cfg.nt, cfg.nx, cfg.ny))
 
+    # Halo
+
     #######################################################################
     # Oppgave 3.2: Slutt
     #######################################################################
