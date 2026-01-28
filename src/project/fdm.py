@@ -41,8 +41,7 @@ def solve_heat_equation(
         b = _build_rhs(cfg, t_i, X, Y, dx, dy, dt, t[index_t +1])
         # Løyser A * T_temp = b, for T_temp
         T_temp = np.linalg.solve(A, b).reshape()
-
-        #hei
+        
 
     #######################################################################
     # Oppgave 3.2: Slutt
