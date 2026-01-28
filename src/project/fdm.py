@@ -36,7 +36,11 @@ def solve_heat_equation(
     # Placeholder initialization — replace this with your implementation
     T = np.zeros((cfg.nt, cfg.nx, cfg.ny))
 
-    # Halo igjen
+    for index_t, t_i in enumerate(t[:-1]):
+        A = _build_matrix(cfg, dx, dy, dt)
+        b = _build_rhs(cfg, t_i, X, Y, dx, dy, dt, t[index_t +1])
+        # Løyser A * T_temp = b, for T_temp
+        T_temp = np.linalg.solve(A, b).reshape()
 
     #######################################################################
     # Oppgave 3.2: Slutt
@@ -63,8 +67,7 @@ def _build_matrix(cfg: Config, dx: float, dy: float, dt: float) -> np.ndarray:
     right = I == cfg.nx - 1
     bottom = J == 0
     top = J == cfg.ny - 1
-
-    # Diagonal entries 
+    # Diagonal entries
     diag = np.full((cfg.nx, cfg.ny), 1 + 2 * rx + 2 * ry)
     diag[left | right] -= rx
     diag[bottom | top] -= ry
