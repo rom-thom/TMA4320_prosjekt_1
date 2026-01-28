@@ -42,6 +42,8 @@ def solve_heat_equation(
         # Løyser A * T_temp = b, for T_temp
         T_temp = np.linalg.solve(A, b).reshape()
 
+        #hei
+
     #######################################################################
     # Oppgave 3.2: Slutt
     #######################################################################
