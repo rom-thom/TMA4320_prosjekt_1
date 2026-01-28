@@ -85,11 +85,15 @@ def forward(
     #######################################################################
 
     # Placeholder initialization — replace this with your implementation
-    out = None
 
-    a = jnp.stack([x, y, t], axis=-1)
+    out = jnp.stack([x, y, t], axis=-1)
 
-    nit_params = init_nn_params(cfg)
+    params = init_nn_params(cfg)
+
+    for param in params:
+        w, b = param
+
+        out = jnp.tanh(w@out + b)
 
     #######################################################################
     # Oppgave 4.1: Slutt
