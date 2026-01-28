@@ -36,13 +36,13 @@ def solve_heat_equation(
     # Placeholder initialization — replace this with your implementation
     T = np.zeros((cfg.nt, cfg.nx, cfg.ny))
 
-    for index_t, t_i in enumerate(t[:-1]):
+    for index in range(len(t[:-1])):
         A = _build_matrix(cfg, dx, dy, dt)
-        b = _build_rhs(cfg, t_i, X, Y, dx, dy, dt, t[index_t +1])
+        b = _build_rhs(cfg, T[index, :, :], X, Y, dx, dy, dt, t[index +1])
         # Løyser A * T_temp = b
         T_temp = np.linalg.solve(A, b).reshape(cfg.nx, cfg.ny)
 
-        T[index_t + 1, :, :] = T_temp
+        T[index + 1, :, :] = T_temp
 
     #######################################################################
     # Oppgave 3.2: Slutt
