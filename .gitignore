@@ -21,3 +21,8 @@ wheels/
 
 # AI
 .claude
+
+# Lagt til i etterkant
+settings.json
+c_cpp_properties.json
+browse.vc.*
