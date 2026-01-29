@@ -86,14 +86,20 @@ def forward(
 
     # Placeholder initialization — replace this with your implementation
 
-    out = jnp.stack([x, y, t], axis=-1)
+    x_norm = (x - cfg.x_min) / (cfg.x_max - cfg.x_min)
+    y_norm = (y - cfg.y_min) / (cfg.y_max - cfg.y_min)
+    t_norm = (t - cfg.t_min) / (cfg.t_max - cfg.t_min)
 
-    params = init_nn_params(cfg)
-
-    for param in params:
+    out = jnp.stack([x_norm, y_norm, t_norm], axis=-1)
+    
+    for param in nn_params[:-1]:
         w, b = param
 
-        out = jnp.tanh(w@out + b)
+        out = jnp.tanh(out@w+ b)
+    
+    # Vi vil ikkje at activation funksjonen sigma = tanh på det siste laget
+    w, b = nn_params[-1]
+    out = (out@w + b).squeeze()
 
     #######################################################################
     # Oppgave 4.1: Slutt
