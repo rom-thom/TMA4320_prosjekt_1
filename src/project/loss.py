@@ -103,7 +103,6 @@ def physics_loss(pinn_params, interior_points, cfg: Config):
     T_yy = vmap(grad(grad(T_pred, argnums=1), argnums=1))(x, y, t)
     T_t = vmap(grad(T_pred, argnums=2))(x, y, t)
     physics_loss_val = jnp.mean((T_t - jnp.exp(pinn_params["log_alpha"]) * (T_xx + T_yy) - cfg.heat_source(x, y, t))**2)
-    print(physics_loss_val)
     #######################################################################
     # Oppgave 5.2: Slutt
     #######################################################################

@@ -39,9 +39,8 @@ def train_nn(
     # Nokre tilfeldige startspunkt (initialbetingelse)
     # ic_points = jnp.array([jnp.linspace(cfg.x_min, cfg.x_max, 30), jnp.linspace(cfg.y_min, cfg.y_max, 30)])
     
-    ic_points, key = sample_ic(key, cfg)
 
-    def objektiv(current_nn_params):
+    def objektiv(current_nn_params, ic_points):
         return cfg.lambda_data * data_loss(current_nn_params, sensor_data, cfg) + cfg.lambda_ic * ic_loss(current_nn_params, ic_points, cfg)
     
     
@@ -53,7 +52,8 @@ def train_nn(
     
     from tqdm import tqdm
     for epoc in tqdm(range(cfg.num_epochs), desc="Training NN"):
-        loss_tot, grad_objektiv = jax.value_and_grad(objektiv)(current_nn_params)
+        ic_points, key = sample_ic(key, cfg)
+        loss_tot, grad_objektiv = jax.value_and_grad(objektiv, 0)(current_nn_params, ic_points)
         loss_data = data_loss(current_nn_params, sensor_data, cfg)
         loss_ic = ic_loss(current_nn_params, ic_points, cfg)
         loss_all[epoc] = (jnp.array([loss_tot, loss_data, loss_ic])) # for å debugge enklare (og oppgåva sa de)
@@ -94,7 +94,51 @@ def train_pinn(sensor_data: jnp.ndarray, cfg: Config) -> tuple[dict, dict]:
     # Oppgave 5.3: Start
     #######################################################################
 
-    # Update the nn_params and losses dictionary
+
+    def objektiv(current_pinn_params, ic_epoch, bc_epoch, interior_epoch):
+        L_data = cfg.lambda_data * data_loss(current_pinn_params["nn"], sensor_data, cfg)
+        L_ic = cfg.lambda_ic * ic_loss(current_pinn_params["nn"], ic_epoch, cfg)
+        L_bc = cfg.lambda_bc * bc_loss(current_pinn_params, bc_epoch, cfg)
+        L_ph = cfg.lambda_physics * physics_loss(current_pinn_params, interior_epoch, cfg)
+        return L_data + L_bc + L_ic + L_ph
+    
+    
+    current_pinn_params = pinn_params
+    current_state = opt_state
+
+    import numpy as np
+    loss_all_list = []
+    loss_all = np.zeros((cfg.num_epochs, 5)) # [tot, data, ic, bc, physics]
+    
+    from tqdm import tqdm
+    for epoc in tqdm(range(cfg.num_epochs), desc="Training PINN"):
+
+        # Nyt sample kvar iterasjon
+        interior_epoch, key = sample_interior(key, cfg)
+        ic_epoch, key = sample_ic(key, cfg)
+        bc_epoch, key = sample_bc(key, cfg)
+
+
+        # val_grad = jax.jit(jax.value_and_grad(objektiv, argnums=0))
+        # loss_tot, grad_objektiv = val_grad(current_pinn_params, ic_epoch, bc_epoch, interior_epoch)
+
+        loss_tot, grad_objektiv = jax.value_and_grad(objektiv, 0)(current_pinn_params, ic_epoch, bc_epoch, interior_epoch)
+        loss_data = data_loss(current_pinn_params["nn"], sensor_data, cfg)
+        loss_ic = ic_loss(current_pinn_params["nn"], ic_epoch, cfg)
+        loss_bc = bc_loss(current_pinn_params, bc_epoch, cfg)
+        loss_ph = physics_loss(current_pinn_params, interior_epoch, cfg)
+        loss_all_list.append([loss_tot, loss_data, loss_ic, loss_bc, loss_ph])
+        loss_all[epoc] = (np.array([loss_tot, loss_data, loss_ic, loss_bc, loss_ph])) # for å debugge enklare
+            
+        current_pinn_params, current_state = adam_step(current_pinn_params, grad_objektiv, current_state, lr=cfg.learning_rate)
+
+    losses["total"] = [row[0] for row in loss_all_list]
+    losses["data"] = [row[1] for row in loss_all_list]
+    losses["ic"] = [row[2] for row in loss_all_list]
+    losses["bc"] = [row[3] for row in loss_all_list]
+    losses["physics"] = [row[4] for row in loss_all_list]
+
+    pinn_params = current_pinn_params
 
     #######################################################################
     # Oppgave 5.3: Slutt
