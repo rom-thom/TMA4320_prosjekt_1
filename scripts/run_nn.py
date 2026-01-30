@@ -25,7 +25,7 @@ def main():
     nn_params, losses = train_nn(T_sensor_data_train, cfg)
     T_pred = predict_grid(nn_params, x, y, t, cfg)
     
-    print("\nGenerating FDM visualizations...")
+    print("\nGenerating NN visualizations...")
     plot_snapshots(
         x,
         y,
@@ -36,6 +36,9 @@ def main():
     create_animation(
         x, y, t, T_pred, title="NN", save_path="output/nn/nn_animation.gif"
     )
+
+    plt.plot(losses["total"])
+    plt.show()
     #######################################################################
     # Oppgave 4.4: Slutt
     #######################################################################
