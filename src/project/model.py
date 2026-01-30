@@ -44,8 +44,12 @@ def init_pinn_params(cfg: Config, seed: int | None = None):
     # Oppgave 5.1: Start
     #######################################################################
 
-    # Placeholder initialization — replace this with your implementation
-    pinn_params = {}
+    effekt_konstant = cfg.source_strength
+    pinn_params = {"nn":init_nn_params(cfg, key = nn_key),
+                   "log_k": cfg.k, 
+                   "log_alpha": jnp.array([cfg.alpha]), 
+                   "log_h": cfg.h,
+                   "log_power": effekt_konstant}
 
     #######################################################################
     # Oppgave 5.1: Slutt

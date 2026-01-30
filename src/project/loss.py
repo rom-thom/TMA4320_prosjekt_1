@@ -93,15 +93,16 @@ def physics_loss(pinn_params, interior_points, cfg: Config):
     # Oppgave 5.2: Start
     #######################################################################
 
-    # Placeholder initialization — replace this with your implementation
-    T_pred_time = lambda t_: forward(pinn_params, x, y, t_, cfg)
-    
-    T_pred_params = lambda parameters: forward(parameters, x, y, t, cfg)
+
+    def T_pred(x_, y_, t_):
+        return forward(pinn_params, x_, y_, t_, cfg)[0]
 
 
-    T_grad_params = grad(grad(T_pred_params))(pinn_params)
-    T_grad_t = grad(T_pred_time)(t)
-    physics_loss_val = jnp.mean((T_grad_t-pinn_params * T_grad_params - cfg.heat_source(x, y, t))**2)
+
+    T_xx = vmap(grad(grad(T_pred, argnums=0), argnums=0))(x, y, t)
+    T_yy = vmap(grad(grad(T_pred, argnums=1), argnums=1))(x, y, t)
+    T_t = vmap(grad(T_pred, argnums=2))(x, y, t)
+    physics_loss_val = jnp.mean((T_t- pinn_params["log_alpha"] * (T_xx + T_yy) - cfg.heat_source(x, y, t))**2)
 
     #######################################################################
     # Oppgave 5.2: Slutt
