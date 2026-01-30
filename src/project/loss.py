@@ -94,7 +94,14 @@ def physics_loss(pinn_params, interior_points, cfg: Config):
     #######################################################################
 
     # Placeholder initialization — replace this with your implementation
-    physics_loss_val = None
+    T_pred_time = lambda t_: forward(pinn_params, x, y, t_, cfg)
+    
+    T_pred_params = lambda parameters: forward(parameters, x, y, t, cfg)
+
+
+    T_grad_params = grad(grad(T_pred_params))(pinn_params)
+    T_grad_t = grad(T_pred_time)(t)
+    physics_loss_val = jnp.mean((T_grad_t-pinn_params * T_grad_params - cfg.heat_source(x, y, t))**2)
 
     #######################################################################
     # Oppgave 5.2: Slutt

@@ -95,7 +95,7 @@ def forward(
     for param in nn_params[:-1]:
         w, b = param
 
-        out = jnp.tanh(out@w + b)
+        out = jnp.tanh(out@w + b) # Vi fann ut at exp er meir presist og symetrisk ved NN
     
     # Vi vil ikkje at activation funksjonen sigma = tanh på det siste laget
     w, b = nn_params[-1]
