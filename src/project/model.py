@@ -8,7 +8,7 @@ import numpy as np
 
 from .config import Config
 
-
+#lager en matrise og bias vektor for hvert lag med riktige dimensjoner. (liste med tupler)
 def init_nn_params(
     cfg: Config, key: jnp.ndarray | None = None, seed: int | None = None
 ) -> list[tuple[jnp.ndarray, jnp.ndarray]]:
@@ -25,7 +25,7 @@ def init_nn_params(
     nn_keys = jax.random.split(nn_key, len(layers) - 1)
     nn_params = []
 
-    for k, (din, dout) in zip(nn_keys, zip(layers[:-1], layers[1:])):
+    for k, (din, dout) in zip(nn_keys, zip(layers[:-1], layers[1:])):    
         w_key, _ = jax.random.split(k)
         scale = jnp.sqrt(2.0 / (din + dout))
         w = jax.random.normal(w_key, (din, dout)) * scale
@@ -45,7 +45,9 @@ def init_pinn_params(cfg: Config, seed: int | None = None):
     #######################################################################
 
     # Placeholder initialization — replace this with your implementation
-    pinn_params = {}
+
+    effekt_konstant = cfg.source_strength
+    pinn_params = {"NN_params":init_nn_params(cfg, key = nn_key), "theta_log_k": cfg.k, "theta_log_alpha": cfg.alpha, "theta_log_h": cfg.h,"theta_log_p": effekt_konstant}
 
     #######################################################################
     # Oppgave 5.1: Slutt
