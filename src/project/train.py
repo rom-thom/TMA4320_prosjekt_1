@@ -37,9 +37,9 @@ def train_nn(
 
 
     # Nokre tilfeldige startspunkt (initialbetingelse)
-    ic_points = jnp.array([jnp.linspace(cfg.x_min, cfg.x_max, 30), jnp.linspace(cfg.y_min, cfg.y_max, 30)])
+    # ic_points = jnp.array([jnp.linspace(cfg.x_min, cfg.x_max, 30), jnp.linspace(cfg.y_min, cfg.y_max, 30)])
     
-    
+    ic_points, key = sample_ic(key, cfg)
 
     def objektiv(current_nn_params):
         return cfg.lambda_data * data_loss(current_nn_params, sensor_data, cfg) + cfg.lambda_ic * ic_loss(current_nn_params, ic_points, cfg)
@@ -48,17 +48,22 @@ def train_nn(
     current_nn_params = nn_params
     current_state = adam_state
 
+    import numpy as np
+    loss_all = np.zeros((cfg.num_epochs, 3)) # [tot, data, ic]
     
-    
-    for epoc in range(cfg.num_epochs):
+    from tqdm import tqdm
+    for epoc in tqdm(range(cfg.num_epochs), desc="Training NN"):
         loss_tot, grad_objektiv = jax.value_and_grad(objektiv)(current_nn_params)
         loss_data = data_loss(current_nn_params, sensor_data, cfg)
         loss_ic = ic_loss(current_nn_params, ic_points, cfg)
-        
+        loss_all[epoc] = (jnp.array([loss_tot, loss_data, loss_ic])) # for å debugge enklare (og oppgåva sa de)
             
-        current_nn_params, current_state = adam_step(current_nn_params, -grad_objektiv, current_state)
+        current_nn_params, current_state = adam_step(current_nn_params, grad_objektiv, current_state, lr=cfg.learning_rate)
 
-        
+    nn_params = current_nn_params
+    losses["total"] = list(loss_all[:, 0])
+    losses["data"] = list(loss_all[:, 1])
+    losses["ic"] = list(loss_all[:, 2])
 
 
     #######################################################################
