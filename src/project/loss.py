@@ -93,17 +93,17 @@ def physics_loss(pinn_params, interior_points, cfg: Config):
     # Oppgave 5.2: Start
     #######################################################################
 
-
+    nn_params = pinn_params["nn"]
     def T_pred(x_, y_, t_):
-        return forward(pinn_params, x_, y_, t_, cfg)[0]
+        return forward(nn_params, x_, y_, t_, cfg)
 
 
 
     T_xx = vmap(grad(grad(T_pred, argnums=0), argnums=0))(x, y, t)
     T_yy = vmap(grad(grad(T_pred, argnums=1), argnums=1))(x, y, t)
     T_t = vmap(grad(T_pred, argnums=2))(x, y, t)
-    physics_loss_val = jnp.mean((T_t- pinn_params["log_alpha"] * (T_xx + T_yy) - cfg.heat_source(x, y, t))**2)
-
+    physics_loss_val = jnp.mean((T_t - pinn_params["log_alpha"] * (T_xx + T_yy) - cfg.heat_source(x, y, t))**2)
+    print(physics_loss_val)
     #######################################################################
     # Oppgave 5.2: Slutt
     #######################################################################
