@@ -37,7 +37,15 @@ def main():
         x, y, t, T_pred, title="NN", save_path="output/nn/nn_animation.gif"
     )
 
-    plt.plot(losses["total"])
+    plt.plot(losses["total"], label="Loss total")
+    plt.plot(losses["data"], label="Loss data")
+    plt.plot(losses["ic"], label="Loss ic")
+    plt.xlabel("epoch nr.")
+    plt.ylabel(r"$\mathcal{L}$")
+    plt.title("Plot over losses")
+    plt.legend()
+    plt.savefig("output/nn/nn_losses",  dpi=300, bbox_inches="tight")
+    plt.grid()
     plt.show()
     #######################################################################
     # Oppgave 4.4: Slutt
