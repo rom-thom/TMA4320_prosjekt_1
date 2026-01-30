@@ -35,7 +35,30 @@ def train_nn(
     # Oppgave 4.3: Start
     #######################################################################
 
-    # Update the nn_params and losses dictionary
+
+    # Nokre tilfeldige startspunkt (initialbetingelse)
+    ic_points = jnp.array([jnp.linspace(cfg.x_min, cfg.x_max, 30), jnp.linspace(cfg.y_min, cfg.y_max, 30)])
+    
+
+    def objektiv(current_nn_params):
+        return cfg.lambda_data * data_loss(current_nn_params, sensor_data, cfg) + cfg.lambda_ic * ic_loss(current_nn_params, ic_points, cfg)
+    
+    
+    current_nn_params = nn_params
+    current_state = adam_state
+
+    
+    
+    for epoc in range(cfg.num_epochs):
+        loss_tot, grad_objektiv = jax.value_and_grad(objektiv)(current_nn_params)
+        loss_data = data_loss(current_nn_params, sensor_data, cfg)
+        loss_ic = ic_loss(current_nn_params, ic_points, cfg)
+        
+            
+        current_nn_params, current_state = adam_step(current_nn_params, -grad_objektiv, current_state)
+
+        
+
 
     #######################################################################
     # Oppgave 4.3: Slutt
