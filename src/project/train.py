@@ -39,6 +39,7 @@ def train_nn(
     # Nokre tilfeldige startspunkt (initialbetingelse)
     ic_points = jnp.array([jnp.linspace(cfg.x_min, cfg.x_max, 30), jnp.linspace(cfg.y_min, cfg.y_max, 30)])
     
+    
 
     def objektiv(current_nn_params):
         return cfg.lambda_data * data_loss(current_nn_params, sensor_data, cfg) + cfg.lambda_ic * ic_loss(current_nn_params, ic_points, cfg)
