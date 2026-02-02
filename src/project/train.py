@@ -94,17 +94,20 @@ def train_pinn(sensor_data: jnp.ndarray, cfg: Config) -> tuple[dict, dict]:
     # Oppgave 5.3: Start
     #######################################################################
 
-
+    @jax.jit
     def objektiv(current_pinn_params, ic_epoch, bc_epoch, interior_epoch):
-        L_data = cfg.lambda_data * data_loss(current_pinn_params["nn"], sensor_data, cfg)
-        L_ic = cfg.lambda_ic * ic_loss(current_pinn_params["nn"], ic_epoch, cfg)
-        L_bc = cfg.lambda_bc * bc_loss(current_pinn_params, bc_epoch, cfg)
-        L_ph = cfg.lambda_physics * physics_loss(current_pinn_params, interior_epoch, cfg)
-        return L_data + L_bc + L_ic + L_ph
+        L_data =  data_loss(current_pinn_params["nn"], sensor_data, cfg)
+        L_ic = ic_loss(current_pinn_params["nn"], ic_epoch, cfg)
+        L_bc = bc_loss(current_pinn_params, bc_epoch, cfg)
+        L_ph = physics_loss(current_pinn_params, interior_epoch, cfg)
+        oux = L_data, L_ic, L_bc, L_ph
+        return cfg.lambda_data * L_data + cfg.lambda_ic * L_bc + cfg.lambda_bc * L_ic + cfg.lambda_physics * L_ph, oux
     
     
     current_pinn_params = pinn_params
     current_state = opt_state
+
+    val_grad = jax.jit(jax.value_and_grad(objektiv, argnums=0, has_aux=True))
 
     import numpy as np
     loss_all_list = []
@@ -119,14 +122,10 @@ def train_pinn(sensor_data: jnp.ndarray, cfg: Config) -> tuple[dict, dict]:
         bc_epoch, key = sample_bc(key, cfg)
 
 
-        # val_grad = jax.jit(jax.value_and_grad(objektiv, argnums=0))
-        # loss_tot, grad_objektiv = val_grad(current_pinn_params, ic_epoch, bc_epoch, interior_epoch)
+        (loss_tot, oux), grad_objektiv = val_grad(current_pinn_params, ic_epoch, bc_epoch, interior_epoch)
 
-        loss_tot, grad_objektiv = jax.value_and_grad(objektiv, 0)(current_pinn_params, ic_epoch, bc_epoch, interior_epoch)
-        loss_data = data_loss(current_pinn_params["nn"], sensor_data, cfg)
-        loss_ic = ic_loss(current_pinn_params["nn"], ic_epoch, cfg)
-        loss_bc = bc_loss(current_pinn_params, bc_epoch, cfg)
-        loss_ph = physics_loss(current_pinn_params, interior_epoch, cfg)
+        loss_data, loss_ic, loss_bc, loss_ph = oux
+        
         loss_all_list.append([loss_tot, loss_data, loss_ic, loss_bc, loss_ph])
         loss_all[epoc] = (np.array([loss_tot, loss_data, loss_ic, loss_bc, loss_ph])) # for å debugge enklare
             
