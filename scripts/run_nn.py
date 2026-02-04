@@ -44,9 +44,8 @@ def main():
     plt.ylabel(r"$\mathcal{L}$")
     plt.title("Plot over losses")
     plt.legend()
-    plt.savefig("output/nn/nn_losses",  dpi=300, bbox_inches="tight")
     plt.grid()
-    plt.show()
+    plt.savefig("output/nn/nn_losses",  dpi=300, bbox_inches="tight")
     #######################################################################
     # Oppgave 4.4: Slutt
     #######################################################################
