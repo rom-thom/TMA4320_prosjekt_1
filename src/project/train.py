@@ -96,15 +96,6 @@ def train_pinn(sensor_data: jnp.ndarray, cfg: Config) -> tuple[dict, dict]:
     # Oppgave 5.3: Start
     #######################################################################
 
-<<<<<<< HEAD
-
-    def objektiv(current_pinn_params, ic_epoch, bc_epoch, interior_epoch):   #loss-funksjoner
-        L_data = cfg.lambda_data * data_loss(current_pinn_params["nn"], sensor_data, cfg)
-        L_ic = cfg.lambda_ic * ic_loss(current_pinn_params["nn"], ic_epoch, cfg)
-        L_bc = cfg.lambda_bc * bc_loss(current_pinn_params, bc_epoch, cfg)
-        L_ph = cfg.lambda_physics * physics_loss(current_pinn_params, interior_epoch, cfg)
-        return L_data + L_bc + L_ic + L_ph
-=======
     @jax.jit
     def objektiv(current_pinn_params, ic_epoch, bc_epoch, interior_epoch):
         L_data =  data_loss(current_pinn_params["nn"], sensor_data, cfg)
@@ -113,7 +104,7 @@ def train_pinn(sensor_data: jnp.ndarray, cfg: Config) -> tuple[dict, dict]:
         L_ph = physics_loss(current_pinn_params, interior_epoch, cfg)
         oux = L_data, L_ic, L_bc, L_ph
         return cfg.lambda_data * L_data + cfg.lambda_ic * L_bc + cfg.lambda_bc * L_ic + cfg.lambda_physics * L_ph, oux
->>>>>>> cbcdc173388bdb388b31ad0bd330d17a0b07ebb7
+
     
     
     current_pinn_params = pinn_params  #initialverdier
@@ -136,20 +127,10 @@ def train_pinn(sensor_data: jnp.ndarray, cfg: Config) -> tuple[dict, dict]:
 
         (loss_tot, oux), grad_objektiv = val_grad(current_pinn_params, ic_epoch, bc_epoch, interior_epoch)
 
-<<<<<<< HEAD
-        loss_tot, grad_objektiv = jax.value_and_grad(objektiv, 0)(current_pinn_params, ic_epoch, bc_epoch, interior_epoch) #deriverer mhp current_pinn_params
-        loss_data = data_loss(current_pinn_params["nn"], sensor_data, cfg) 
-        loss_ic = ic_loss(current_pinn_params["nn"], ic_epoch, cfg)
-        loss_bc = bc_loss(current_pinn_params, bc_epoch, cfg)
-        loss_ph = physics_loss(current_pinn_params, interior_epoch, cfg)
-        loss_all_list.append([loss_tot, loss_data, loss_ic, loss_bc, loss_ph])  #legger til lossene i en 2d-liste
-        loss_all[epoc] = (np.array([loss_tot, loss_data, loss_ic, loss_bc, loss_ph])) # for å debugge enklare
-=======
         loss_data, loss_ic, loss_bc, loss_ph = oux
         
         loss_all_list.append([loss_tot, loss_data, loss_ic, loss_bc, loss_ph])
         # loss_all[epoc] = (np.array([loss_tot, loss_data, loss_ic, loss_bc, loss_ph])) # for å debugge enklare
->>>>>>> cbcdc173388bdb388b31ad0bd330d17a0b07ebb7
             
         current_pinn_params, current_state = adam_step(current_pinn_params, grad_objektiv, current_state, lr=cfg.learning_rate)
 
