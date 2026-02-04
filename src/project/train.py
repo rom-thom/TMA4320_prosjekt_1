@@ -26,8 +26,8 @@ def train_nn(
         losses: Dictionary of loss histories
     """
     key = jax.random.key(cfg.seed)
-    nn_params = init_nn_params(cfg)
-    adam_state = init_adam(nn_params)
+    nn_params = init_nn_params(cfg)     #sender initielle matriseverdier
+    adam_state = init_adam(nn_params)  
 
     losses = {"total": [], "data": [], "ic": []}  # Fill with loss histories
 
@@ -86,7 +86,7 @@ def train_pinn(sensor_data: jnp.ndarray, cfg: Config) -> tuple[dict, dict]:
     """
     key = jax.random.key(cfg.seed)
     pinn_params = init_pinn_params(cfg)
-    opt_state = init_adam(pinn_params)
+    opt_state = init_adam(pinn_params)     
 
     losses = {"total": [], "data": [], "physics": [], "ic": [], "bc": []}
 
@@ -95,7 +95,7 @@ def train_pinn(sensor_data: jnp.ndarray, cfg: Config) -> tuple[dict, dict]:
     #######################################################################
 
 
-    def objektiv(current_pinn_params, ic_epoch, bc_epoch, interior_epoch):
+    def objektiv(current_pinn_params, ic_epoch, bc_epoch, interior_epoch):   #loss-funksjoner
         L_data = cfg.lambda_data * data_loss(current_pinn_params["nn"], sensor_data, cfg)
         L_ic = cfg.lambda_ic * ic_loss(current_pinn_params["nn"], ic_epoch, cfg)
         L_bc = cfg.lambda_bc * bc_loss(current_pinn_params, bc_epoch, cfg)
@@ -103,8 +103,8 @@ def train_pinn(sensor_data: jnp.ndarray, cfg: Config) -> tuple[dict, dict]:
         return L_data + L_bc + L_ic + L_ph
     
     
-    current_pinn_params = pinn_params
-    current_state = opt_state
+    current_pinn_params = pinn_params  #initialverdier
+    current_state = opt_state  
 
     import numpy as np
     loss_all_list = []
@@ -114,7 +114,7 @@ def train_pinn(sensor_data: jnp.ndarray, cfg: Config) -> tuple[dict, dict]:
     for epoc in tqdm(range(cfg.num_epochs), desc="Training PINN"):
 
         # Nyt sample kvar iterasjon
-        interior_epoch, key = sample_interior(key, cfg)
+        interior_epoch, key = sample_interior(key, cfg)  
         ic_epoch, key = sample_ic(key, cfg)
         bc_epoch, key = sample_bc(key, cfg)
 
@@ -122,12 +122,12 @@ def train_pinn(sensor_data: jnp.ndarray, cfg: Config) -> tuple[dict, dict]:
         # val_grad = jax.jit(jax.value_and_grad(objektiv, argnums=0))
         # loss_tot, grad_objektiv = val_grad(current_pinn_params, ic_epoch, bc_epoch, interior_epoch)
 
-        loss_tot, grad_objektiv = jax.value_and_grad(objektiv, 0)(current_pinn_params, ic_epoch, bc_epoch, interior_epoch)
-        loss_data = data_loss(current_pinn_params["nn"], sensor_data, cfg)
+        loss_tot, grad_objektiv = jax.value_and_grad(objektiv, 0)(current_pinn_params, ic_epoch, bc_epoch, interior_epoch) #deriverer mhp current_pinn_params
+        loss_data = data_loss(current_pinn_params["nn"], sensor_data, cfg) 
         loss_ic = ic_loss(current_pinn_params["nn"], ic_epoch, cfg)
         loss_bc = bc_loss(current_pinn_params, bc_epoch, cfg)
         loss_ph = physics_loss(current_pinn_params, interior_epoch, cfg)
-        loss_all_list.append([loss_tot, loss_data, loss_ic, loss_bc, loss_ph])
+        loss_all_list.append([loss_tot, loss_data, loss_ic, loss_bc, loss_ph])  #legger til lossene i en 2d-liste
         loss_all[epoc] = (np.array([loss_tot, loss_data, loss_ic, loss_bc, loss_ph])) # for å debugge enklare
             
         current_pinn_params, current_state = adam_step(current_pinn_params, grad_objektiv, current_state, lr=cfg.learning_rate)
