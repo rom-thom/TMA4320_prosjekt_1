@@ -44,12 +44,12 @@ def init_pinn_params(cfg: Config, seed: int | None = None):
     # Oppgave 5.1: Start
     #######################################################################
 
-    effekt_konstant = cfg.source_strength
+
     pinn_params = {"nn":init_nn_params(cfg, key = nn_key),
-                   "log_k": cfg.k, 
-                   "log_alpha": jnp.array([cfg.alpha]), 
-                   "log_h": cfg.h,
-                   "log_power": effekt_konstant}
+                   "log_k": 1., 
+                   "log_alpha": jnp.array([1.]), 
+                   "log_h": 1.,
+                   "log_power": 1.}
 
     #######################################################################
     # Oppgave 5.1: Slutt
@@ -99,10 +99,11 @@ def forward(
     for param in nn_params[:-1]:
         w, b = param
 
-        out = jnp.tanh(out@w + b) # Vi fann ut at exp er meir presist og symetrisk ved NN
+        out = jnp.tanh(out@w + b)
     
     # Vi vil ikkje at activation funksjonen sigma = tanh på det siste laget
     w, b = nn_params[-1]
+
     out = (out@w + b).squeeze()
 
     #######################################################################

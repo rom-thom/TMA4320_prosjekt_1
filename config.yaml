@@ -57,14 +57,14 @@ sensors:
 training:
   layer_sizes: [3, 32, 32, 1]
   learning_rate: 0.001
-  num_epochs: 1000
+  num_epochs: 5000
   seed: 42
 
   # Loss weights
   lambda_physics: 1.0
-  lambda_ic:  1.0
-  lambda_bc: 1.0
-  lambda_data: 1.0
+  lambda_ic:  1.
+  lambda_bc: 1.
+  lambda_data: 1.
 
   # Sampling
   num_collocation: 4096

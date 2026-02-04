@@ -36,7 +36,6 @@ def solve_heat_equation(
 
 
 
-    # Placeholder initialization — replace this with your implementation
     T = np.zeros((cfg.nt, cfg.nx, cfg.ny))
     T[0, :, :] = cfg.T_outside
 

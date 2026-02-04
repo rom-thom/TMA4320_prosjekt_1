@@ -111,9 +111,7 @@ def train_pinn(sensor_data: jnp.ndarray, cfg: Config) -> tuple[dict, dict]:
 
     val_grad = jax.jit(jax.value_and_grad(objektiv, argnums=0, has_aux=True))
 
-    # import numpy as np
     loss_all_list = []
-    # loss_all = np.zeros((cfg.num_epochs, 5)) # [tot, data, ic, bc, physics]
     
     from tqdm import tqdm
     for epoc in tqdm(range(cfg.num_epochs), desc="Training PINN"):
@@ -129,7 +127,6 @@ def train_pinn(sensor_data: jnp.ndarray, cfg: Config) -> tuple[dict, dict]:
         loss_data, loss_ic, loss_bc, loss_ph = oux
         
         loss_all_list.append([loss_tot, loss_data, loss_ic, loss_bc, loss_ph])
-        # loss_all[epoc] = (np.array([loss_tot, loss_data, loss_ic, loss_bc, loss_ph])) # for å debugge enklare
             
         current_pinn_params, current_state = adam_step(current_pinn_params, grad_objektiv, current_state, lr=cfg.learning_rate)
 
@@ -138,6 +135,8 @@ def train_pinn(sensor_data: jnp.ndarray, cfg: Config) -> tuple[dict, dict]:
     losses["ic"] = [row[2] for row in loss_all_list]
     losses["bc"] = [row[3] for row in loss_all_list]
     losses["physics"] = [row[4] for row in loss_all_list]
+
+    # print([row[4] for row in loss_all_list])
 
     pinn_params = current_pinn_params
 
