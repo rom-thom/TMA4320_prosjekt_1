@@ -41,8 +41,8 @@ def main():
         y,
         t,
         T_pred,
-        save_path="output/pinn/pinn_snapshots.png",
-    )
+        save_path="output/pinn/pinn_snapshots.png", show_interactively=True    
+        )
     create_animation(
         x, y, t, T_pred, title="PINN", save_path="output/pinn/pinn_animation.gif"
     )

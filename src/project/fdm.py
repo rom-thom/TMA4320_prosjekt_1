@@ -62,7 +62,7 @@ def _build_matrix(cfg: Config, dx: float, dy: float, dt: float) -> np.ndarray:
     rx = cfg.alpha * dt / dx**2
     ry = cfg.alpha * dt / dy**2
 
-    def idx(i, j):
+    def idx(i, j):  #får to lange lister 
         return i * cfg.ny + j
 
     I, J = np.meshgrid(np.arange(cfg.nx), np.arange(cfg.ny), indexing="ij")
@@ -73,7 +73,7 @@ def _build_matrix(cfg: Config, dx: float, dy: float, dt: float) -> np.ndarray:
     bottom = J == 0
     top = J == cfg.ny - 1
     # Diagonal entries
-    diag = np.full((cfg.nx, cfg.ny), 1 + 2 * rx + 2 * ry)
+    diag = np.full((cfg.nx, cfg.ny), 1 + 2 * rx + 2 * ry)  #full matrise av indre puntker 
     diag[left | right] -= rx
     diag[bottom | top] -= ry
     diag[left | right] += rx * cfg.h * dx / cfg.k
@@ -83,8 +83,8 @@ def _build_matrix(cfg: Config, dx: float, dy: float, dt: float) -> np.ndarray:
     A[p, p] = diag
 
     # Off-diagonals
-    mask = ~left
-    A[idx(I[mask], J[mask]), idx(I[mask] - 1, J[mask])] = -rx
+    mask = ~left    
+    A[idx(I[mask], J[mask]), idx(I[mask] - 1, J[mask])] = -rx   #I(mask) returnerer alle punktene der mask er true i en liste
 
     mask = ~right
     A[idx(I[mask], J[mask]), idx(I[mask] + 1, J[mask])] = -rx
@@ -92,7 +92,7 @@ def _build_matrix(cfg: Config, dx: float, dy: float, dt: float) -> np.ndarray:
     mask = ~bottom
     A[idx(I[mask], J[mask]), idx(I[mask], J[mask] - 1)] = -ry
 
-    mask = ~top
+    mask = ~top 
     A[idx(I[mask], J[mask]), idx(I[mask], J[mask] + 1)] = -ry
 
     return A

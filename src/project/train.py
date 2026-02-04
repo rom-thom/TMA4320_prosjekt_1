@@ -26,8 +26,8 @@ def train_nn(
         losses: Dictionary of loss histories
     """
     key = jax.random.key(cfg.seed)
-    nn_params = init_nn_params(cfg)
-    adam_state = init_adam(nn_params)
+    nn_params = init_nn_params(cfg)     #sender initielle matriseverdier
+    adam_state = init_adam(nn_params)  
 
     losses = {"total": [], "data": [], "ic": []}  # Fill with loss histories
 
@@ -88,7 +88,7 @@ def train_pinn(sensor_data: jnp.ndarray, cfg: Config) -> tuple[dict, dict]:
     """
     key = jax.random.key(cfg.seed)
     pinn_params = init_pinn_params(cfg)
-    opt_state = init_adam(pinn_params)
+    opt_state = init_adam(pinn_params)     
 
     losses = {"total": [], "data": [], "physics": [], "ic": [], "bc": []}
 
@@ -104,10 +104,11 @@ def train_pinn(sensor_data: jnp.ndarray, cfg: Config) -> tuple[dict, dict]:
         L_ph = physics_loss(current_pinn_params, interior_epoch, cfg)
         oux = L_data, L_ic, L_bc, L_ph
         return cfg.lambda_data * L_data + cfg.lambda_ic * L_bc + cfg.lambda_bc * L_ic + cfg.lambda_physics * L_ph, oux
+
     
     
-    current_pinn_params = pinn_params
-    current_state = opt_state
+    current_pinn_params = pinn_params  #initialverdier
+    current_state = opt_state  
 
     val_grad = jax.jit(jax.value_and_grad(objektiv, argnums=0, has_aux=True))
 
@@ -117,7 +118,7 @@ def train_pinn(sensor_data: jnp.ndarray, cfg: Config) -> tuple[dict, dict]:
     for epoc in tqdm(range(cfg.num_epochs), desc="Training PINN"):
 
         # Nyt sample kvar iterasjon
-        interior_epoch, key = sample_interior(key, cfg)
+        interior_epoch, key = sample_interior(key, cfg)  
         ic_epoch, key = sample_ic(key, cfg)
         bc_epoch, key = sample_bc(key, cfg)
 

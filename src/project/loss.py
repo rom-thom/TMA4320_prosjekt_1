@@ -93,9 +93,9 @@ def physics_loss(pinn_params, interior_points, cfg: Config):
     # Oppgave 5.2: Start
     #######################################################################
 
-    nn_params = pinn_params["nn"]
+    nn_params = pinn_params["nn"] #bare parametere til nevralt nett
     def T_pred(x_, y_, t_):
-        return forward(nn_params, x_, y_, t_, cfg)
+        return forward(nn_params, x_, y_, t_, cfg)   #sender inn og får ut fra NN
 
 
 
