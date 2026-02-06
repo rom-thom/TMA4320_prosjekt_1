@@ -25,13 +25,15 @@ def main():
     print("Solving heat equation with physics informed neural network...")
     pinn_params, losses = train_pinn(T_sensor_data_train, cfg)
 
-    print(f"Expected physict params: alpha = {cfg.alpha}, k = {cfg.k}, h = {cfg.h}, effektkonst = {cfg.source_strength}")
-    
-    print(f"PINN physics params: \
-          alpha = {jnp.exp(pinn_params["log_alpha"])},\
-          k = {jnp.exp(pinn_params["log_k"])}, \
-          h = {jnp.exp(pinn_params["log_h"])}, \
-          effektkonstant = {jnp.exp(pinn_params["log_power"])}")
+    print(f"Expected physics params: alpha = {cfg.alpha}, k = {cfg.k}, h = {cfg.h}, effektkonst = {cfg.source_strength}")
+
+    print(
+        "PINN physics params: "
+        f"alpha = {float(jnp.exp(pinn_params['log_alpha'][0])):.4f}, "
+        f"k = {float(jnp.exp(pinn_params['log_k'])):.4f}, "
+        f"h = {float(jnp.exp(pinn_params['log_h'])):.4f}, "
+        f"effektkonst = {float(jnp.exp(pinn_params['log_power'])):.4f}"
+    )
 
     T_pred = predict_grid(pinn_params["nn"], x, y, t, cfg)
     
@@ -41,7 +43,7 @@ def main():
         y,
         t,
         T_pred,
-        save_path="output/pinn/pinn_snapshots.png", show_interactively=True    
+        save_path="output/pinn/pinn_snapshots.png"    
         )
     create_animation(
         x, y, t, T_pred, title="PINN", save_path="output/pinn/pinn_animation.gif"

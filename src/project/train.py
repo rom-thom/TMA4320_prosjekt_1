@@ -103,7 +103,7 @@ def train_pinn(sensor_data: jnp.ndarray, cfg: Config) -> tuple[dict, dict]:
         L_bc = bc_loss(current_pinn_params, bc_epoch, cfg)
         L_ph = physics_loss(current_pinn_params, interior_epoch, cfg)
         oux = L_data, L_ic, L_bc, L_ph
-        return cfg.lambda_data * L_data + cfg.lambda_ic * L_bc + cfg.lambda_bc * L_ic + cfg.lambda_physics * L_ph, oux
+        return (cfg.lambda_data * L_data + cfg.lambda_ic * L_bc + cfg.lambda_bc * L_ic + cfg.lambda_physics * L_ph), oux
 
     
     
