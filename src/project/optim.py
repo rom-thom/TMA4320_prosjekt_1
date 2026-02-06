@@ -15,7 +15,7 @@ def init_adam(params):
     """
     m = jax.tree_util.tree_map(jnp.zeros_like, params)
     v = jax.tree_util.tree_map(jnp.zeros_like, params)
-    return {"m": m, "v": v, "t": 0}
+    return {"m": m, "v": v, "t": 0}   
 
 
 def adam_step(params, grads, state, lr=1e-3, b1=0.9, b2=0.999, eps=1e-8):

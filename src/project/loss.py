@@ -32,7 +32,10 @@ def data_loss(
     #######################################################################
 
     # Placeholder initialization — replace this with your implementation
-    data_loss_val = None
+    T_pred = forward(nn_params, x, y, t, cfg)
+
+    data_loss_val = jnp.mean((T_pred-T_true)**2)
+            
 
     #######################################################################
     # Oppgave 4.2: Slutt (se også ic_loss)
@@ -63,7 +66,8 @@ def ic_loss(
     #######################################################################
 
     # Placeholder initialization — replace this with your implementation
-    ic_loss_val = None
+    T_pred = forward(nn_params, x, y, t=0, cfg=cfg)
+    ic_loss_val = jnp.mean((T_pred-cfg.T_outside)**2)
 
     #######################################################################
     # Oppgave 4.2: Slutt (se også data_loss)
@@ -89,9 +93,19 @@ def physics_loss(pinn_params, interior_points, cfg: Config):
     # Oppgave 5.2: Start
     #######################################################################
 
-    # Placeholder initialization — replace this with your implementation
-    physics_loss_val = None
+    nn_params = pinn_params["nn"] #bare parametere til nevralt nett
+    def T_pred(x_, y_, t_):
+        return forward(nn_params, x_, y_, t_, cfg)   #sender inn og får ut fra NN
 
+
+
+    T_xx = vmap(grad(grad(T_pred, argnums=0), argnums=0))(x, y, t)
+    T_yy = vmap(grad(grad(T_pred, argnums=1), argnums=1))(x, y, t)
+    T_t = vmap(grad(T_pred, argnums=2))(x, y, t)
+
+    # Brukar eigen heatsource i staden for cfg.heatsource() fordi da brukar eg log_power eg trenar opp i staden for den innebygde faste konstanten
+    heat_source = jnp.where(cfg.is_source(x, y), jnp.exp(pinn_params["log_power"]), 0.0)
+    physics_loss_val = jnp.mean((T_t - jnp.exp(pinn_params["log_alpha"]) * (T_xx + T_yy) - heat_source)**2)
     #######################################################################
     # Oppgave 5.2: Slutt
     #######################################################################

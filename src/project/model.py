@@ -44,10 +44,12 @@ def init_pinn_params(cfg: Config, seed: int | None = None):
     # Oppgave 5.1: Start
     #######################################################################
 
-    # Placeholder initialization — replace this with your implementation
 
-    effekt_konstant = cfg.source_strength
-    pinn_params = {"NN_params":init_nn_params(cfg, key = nn_key), "theta_log_k": cfg.k, "theta_log_alpha": cfg.alpha, "theta_log_h": cfg.h,"theta_log_p": effekt_konstant}
+    pinn_params = {"nn":init_nn_params(cfg, key = nn_key),
+                   "log_k": 1., 
+                   "log_alpha": jnp.array([1.]), 
+                   "log_h": 1.,
+                   "log_power": 1.}
 
     #######################################################################
     # Oppgave 5.1: Slutt
@@ -87,7 +89,22 @@ def forward(
     #######################################################################
 
     # Placeholder initialization — replace this with your implementation
-    out = None
+
+    x_norm = (x - cfg.x_min) / (cfg.x_max - cfg.x_min)
+    y_norm = (y - cfg.y_min) / (cfg.y_max - cfg.y_min)
+    t_norm = (t - cfg.t_min) / (cfg.t_max - cfg.t_min)
+
+    out = jnp.stack([x_norm, y_norm, t_norm], axis=-1)
+    
+    for param in nn_params[:-1]:
+        w, b = param
+
+        out = jnp.tanh(out@w + b)
+    
+    # Vi vil ikkje at activation funksjonen sigma = tanh på det siste laget
+    w, b = nn_params[-1]
+
+    out = (out@w + b).squeeze()
 
     #######################################################################
     # Oppgave 4.1: Slutt
