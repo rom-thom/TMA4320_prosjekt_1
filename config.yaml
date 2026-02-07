@@ -28,7 +28,7 @@ source:
     - 0.5                # Heat source size (meters)
     # - 0.3                # Additional heat source size
 
-  strength: 150.0         # Heat source strength (degrees/hour)
+  strength: 15.0         # Heat source strength (degrees/hour)
 
 # Discretization
 grid:
