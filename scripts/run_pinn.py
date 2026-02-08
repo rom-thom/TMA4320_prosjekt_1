@@ -60,7 +60,6 @@ def main():
     plt.legend()
     plt.grid()
     plt.savefig("output/pinn/pinn_losses",  dpi=300, bbox_inches="tight")
-    plt.show()
     #######################################################################
     # Oppgave 5.4: Slutt
     #######################################################################
