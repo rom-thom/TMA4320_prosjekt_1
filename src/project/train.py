@@ -137,8 +137,6 @@ def train_pinn(sensor_data: jnp.ndarray, cfg: Config) -> tuple[dict, dict]:
     losses["bc"] = [row[3] for row in loss_all_list]
     losses["physics"] = [row[4] for row in loss_all_list]
 
-    # print([row[4] for row in loss_all_list])
-
     pinn_params = current_pinn_params
 
     #######################################################################

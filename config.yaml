@@ -28,7 +28,7 @@ source:
     - 0.5                # Heat source size (meters)
     # - 0.3                # Additional heat source size
 
-  strength: 150.0         # Heat source strength (degrees/hour)
+  strength: 15.0         # Heat source strength (degrees/hour)
 
 # Discretization
 grid:
@@ -61,10 +61,10 @@ training:
   seed: 42
 
   # Loss weights
-  lambda_physics: .2
+  lambda_physics: 1.
   lambda_ic:  1.
-  lambda_bc: .3
-  lambda_data: 1.
+  lambda_bc: 1.
+  lambda_data: 1.0
 
   # Sampling
   num_collocation: 4096
